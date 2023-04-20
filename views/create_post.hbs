@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/login">Log in</a></li>
+            <li><a href="/logout">Log out</a></li>
+            <li><a href="/register">Register</a></li>
+            <li><a href="/welcome">Welcome</a></li>
+            <li><a href="/users/posts/new">Create a post</a></li>
+        </ul>
+    </nav>
+
+    <article>
+        <p>Login Form</p>
+        <form action="/users/posts" method="POST">
+            <div>
+                <label for="content">Content:</label>
+                <textarea id="content" name="content" rows="10" cols="50"></textarea>
+            </div>
+
+            <button type="submit">Submit</button>
+        </form>
+        <section>
+            {{#if message }}
+            <p>{{message}}</p>
+            {{/if}}
+        </section>
+    </article>
+</body>
+
+</html>

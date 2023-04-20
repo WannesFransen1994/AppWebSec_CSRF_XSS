@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+
+    <title>Home</title>
+</head>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/login">Log in</a></li>
+            <li><a href="/logout">Log out</a></li>
+            <li><a href="/register">Register</a></li>
+            <li><a href="/welcome">Welcome</a></li>
+            <li><a href="/users/posts/new">Create a post</a></li>
+        </ul>
+    </nav>
+
+    <article>
+        <section>
+            {{#if email }}
+            <p>Hi {{email}}</p>
+            {{/if}}
+        </section>
+
+        <section>
+            My wall:
+            <table id="list_table_json"></table>
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    console.log("running");
+                    $.ajax({
+                        url: "http://localhost:4000/api/users/aperson/posts",
+                        dataType: 'json',
+                        type: 'get',
+                        cache: false,
+                        success: function (data) {
+                            console.log(data);
+                            var event_data = '';
+                            $.each(data, function (value) {
+                                console.log(value);
+                                event_data += '<tr>';
+                                event_data += '<td>' + data[value] + '</td>';
+                                event_data += '</tr>';
+                            });
+                            $("#list_table_json").append(event_data);
+                            console.log(event_data);
+                        },
+                        error: function (d) {
+                            alert("No posts found or something went wrong.");
+                        }
+                    });
+                });
+            </script>
+        </section>
+
+    </article>
+</body>
+
+</html>
