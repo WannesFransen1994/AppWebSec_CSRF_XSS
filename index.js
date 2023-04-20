@@ -47,32 +47,9 @@ function can_user_view_posts(resource_email, performer_email) {
     return false
 }
 
-
-app.get("/", (req, res) => {
-    res.render("index")
-})
-
-app.get("/api/users/:email/posts", (req, res) => {
-    res.set('Access-Control-Allow-Origin', 'http://localhost:4000')
-    let header_value = req.header(api_header_name)
-    if (!header_value || !verify_jwt(header_value)) {
-        return res.status(400).json("invalid or missing jwt")
-    } else if (can_user_view_posts(req.params.email, get_jwt_payload(header_value).email)) {
-        return res.status(200).json(api_data[req.params.email]["posts"])
-    }
-
-    return res.status(400).json("not allowed to view this person his/her posts")
-
-
-})
-
-app.get("/register", (req, res) => {
-    res.render("register")
-})
-
-app.get("/login", (req, res) => {
-    res.render("login")
-})
+app.get("/", (req, res) => { res.render("index") })
+app.get("/register", (req, res) => { res.render("register") })
+app.get("/login", (req, res) => { res.render("login") })
 
 app.get("/logout", (req, res) => {
     res.clearCookie(cookie_identifier)
@@ -84,6 +61,48 @@ app.get("/welcome", (req, res) => {
         return res.render('login', { message: "log in first" })
     }
     return res.render("welcome", { email: get_jwt_payload(req.cookies.session_id).email })
+})
+
+app.get("/users/posts/new", (req, res) => {
+    if (!req.cookies.session_id || !verify_jwt(req.cookies.session_id)) {
+        return res.render('login', { message: "log in first" })
+    }
+    return res.render("create_post")
+})
+app.post("/users/posts", (req, res) => {
+    if (!req.cookies.session_id || !verify_jwt(req.cookies.session_id)) {
+        return res.render('login', { message: "log in first" })
+    }
+    if (!req.body.content) { return res.render('create_post', { message: "Add some content" }) }
+    const email = get_jwt_payload(req.cookies.session_id).email;
+    if (api_data[email]) { api_data[email].posts.push(req.body.content) }
+    else if (!api_data[email]) {
+        api_data[email] = { posts: [req.body.content], can_view: [] }
+    }
+    res.redirect('/welcome');
+})
+
+app.get("/cookieapi/users/:email/posts", (req, res) => {
+    res.set('Access-Control-Allow-Origin', 'http://localhost:4000')
+    if (!req.cookies.session_id || !verify_jwt(req.cookies.session_id)) {
+        return res.status(499).json("invalid or missing jwt")
+    } else if (can_user_view_posts(req.params.email, get_jwt_payload(req.cookies.session_id).email)) {
+        return res.status(200).json(api_data[req.params.email]["posts"])
+    }
+
+    return res.status(400).json("not allowed to view this person his/her posts")
+})
+
+app.get("/api/users/:email/posts", (req, res) => {
+    res.set('Access-Control-Allow-Origin', 'http://localhost:4000')
+    let header_value = req.header(api_header_name)
+    if (!header_value || !verify_jwt(header_value)) {
+        return res.status(499).json("invalid or missing jwt")
+    } else if (can_user_view_posts(req.params.email, get_jwt_payload(header_value).email)) {
+        return res.status(200).json(api_data[req.params.email]["posts"])
+    }
+
+    return res.status(400).json("not allowed to view this person his/her posts")
 })
 
 app.post("/auth/login", (req, res) => {
