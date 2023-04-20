@@ -40,6 +40,15 @@ let api_data = {
     "xx": { posts: ["some post", "another post"], can_view: ["aperson"] }
 }
 
+let example_date = new Date();
+example_date.setMilliseconds(0);
+let valid_csrf_tokens = {
+    "random_token": { user: "a_user", issued_at: example_date }
+};
+function gen_csrf_token() {
+    return Math.random().toString(36).slice(2)
+}
+
 function can_user_view_posts(resource_email, performer_email) {
     // api_data[req.params.email] && api_data[req.params.email]["can_view"].includes(get_jwt_payload(header_value).email)
     if (resource_email == performer_email) { return true }
@@ -67,14 +76,27 @@ app.get("/users/posts/new", (req, res) => {
     if (!req.cookies.session_id || !verify_jwt(req.cookies.session_id)) {
         return res.render('login', { message: "log in first" })
     }
-    return res.render("create_post")
+    const token = gen_csrf_token();
+    const email = get_jwt_payload(req.cookies.session_id).email;
+    let issued_date = new Date();
+    issued_date.setMilliseconds(0);
+    valid_csrf_tokens[token] = { user: email, issued_at: issued_date }
+    return res.render("create_post", { csrf_token: token })
 })
+
 app.post("/users/posts", (req, res) => {
     if (!req.cookies.session_id || !verify_jwt(req.cookies.session_id)) {
         return res.render('login', { message: "log in first" })
     }
     if (!req.body.content) { return res.render('create_post', { message: "Add some content" }) }
     const email = get_jwt_payload(req.cookies.session_id).email;
+    if (email != valid_csrf_tokens[req.body._csrf].user) {
+        const token = gen_csrf_token();
+        let issued_date = new Date();
+        issued_date.setMilliseconds(0);
+        valid_csrf_tokens[token] = { user: email, issued_at: issued_date }
+        return res.render('create_post', { csrf_token: token, message: "nice try, don't tamper with the csrf" })
+    }
     if (api_data[email]) { api_data[email].posts.push(req.body.content) }
     else if (!api_data[email]) {
         api_data[email] = { posts: [req.body.content], can_view: [] }
