@@ -157,7 +157,7 @@ app.post("/auth/login", (req, res) => {
                 // let session_id = generate_session_key();
                 // memory_sessions[session_id] = { email: result[0].email, last_usage: unix_ts() }
                 let session_id = generate_jwt(result[0].email)
-                res.cookie(cookie_identifier, session_id, { sameSite: 'Strict', httpOnly: true, secure: false, maxAge: 36000000 })
+                res.cookie(cookie_identifier, session_id, { sameSite: 'Strict', httpOnly: false, secure: false, maxAge: 36000000 })
 
 
                 t = process.hrtime(x);
