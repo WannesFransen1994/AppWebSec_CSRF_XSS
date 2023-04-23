@@ -103,6 +103,18 @@ app.post("/users/posts", (req, res) => {
     }
     res.redirect('/welcome');
 })
+app.post("/users/unprotected_posts", (req, res) => {
+    if (!req.cookies.session_id || !verify_jwt(req.cookies.session_id)) {
+        return res.render('login', { message: "log in first" })
+    }
+    if (!req.body.content) { return res.render('create_post', { message: "Add some content" }) }
+    const email = get_jwt_payload(req.cookies.session_id).email;
+    if (api_data[email]) { api_data[email].posts.push(req.body.content) }
+    else if (!api_data[email]) {
+        api_data[email] = { posts: [req.body.content], can_view: [] }
+    }
+    res.redirect('/welcome');
+})
 
 app.get("/cookieapi/users/:email/posts", (req, res) => {
     res.set('Access-Control-Allow-Origin', 'http://localhost:4000')
