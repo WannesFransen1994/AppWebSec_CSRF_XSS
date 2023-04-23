@@ -48,9 +48,22 @@ function can_user_view_posts(resource_email, performer_email) {
 }
 
 
-app.get("/", (req, res) => {
-    res.render("index")
+app.get("/", (req, res) => { res.render("index") })
+app.get("/register", (req, res) => { res.render("register") })
+app.get("/login", (req, res) => { res.render("login") })
+
+app.get("/logout", (req, res) => {
+    res.clearCookie(cookie_identifier)
+    res.redirect('login');
 })
+
+app.get("/welcome", (req, res) => {
+    if (!req.cookies.session_id || !verify_jwt(req.cookies.session_id)) {
+        return res.render('login', { message: "log in first" })
+    }
+    return res.render("welcome", { email: get_jwt_payload(req.cookies.session_id).email })
+})
+
 
 app.get("/api/users/:email/posts", (req, res) => {
     res.set('Access-Control-Allow-Origin', 'http://localhost:4000')
@@ -64,26 +77,6 @@ app.get("/api/users/:email/posts", (req, res) => {
     return res.status(400).json("not allowed to view this person his/her posts")
 
 
-})
-
-app.get("/register", (req, res) => {
-    res.render("register")
-})
-
-app.get("/login", (req, res) => {
-    res.render("login")
-})
-
-app.get("/logout", (req, res) => {
-    res.clearCookie(cookie_identifier)
-    res.redirect('login');
-})
-
-app.get("/welcome", (req, res) => {
-    if (!req.cookies.session_id || !verify_jwt(req.cookies.session_id)) {
-        return res.render('login', { message: "log in first" })
-    }
-    return res.render("welcome", { email: get_jwt_payload(req.cookies.session_id).email })
 })
 
 app.post("/auth/login", (req, res) => {
