@@ -155,7 +155,8 @@ app.post("/auth/login", (req, res) => {
             } else if (await argon2.verify(result[0].hashed_password, password)) {
                 // Set session here
                 // let session_id = generate_session_key();
-                // memory_sessions[session_id] = { email: result[0].email, last_usage: unix_ts() }
+                // me
+                mory_sessions[session_id] = { email: result[0].email, last_usage: unix_ts() }
                 let session_id = generate_jwt(result[0].email)
                 res.cookie(cookie_identifier, session_id, { sameSite: 'Strict', httpOnly: false, secure: false, maxAge: 36000000 })
 
